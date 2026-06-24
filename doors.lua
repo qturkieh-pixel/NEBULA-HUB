@@ -202,7 +202,7 @@ Settings:AddToggle('ThirdPerson', {
 	Text = "Third Person",
 	Default = false
 }):AddKeyPicker("KeyPicker", {
-	Default = "T",
+	Default = "V",
 	SyncToggleState = true, 
 	Mode = "Toggle",
 	Text = "Third person"
@@ -290,6 +290,7 @@ Movement:AddSlider("WalkspeedSlider", {
 
 Movement:AddToggle('EnableWalkSpeed', {
 	Text = "Enable Speed", 
+	Tooltip = "enable a walkspeed as fast as u would like.",
 	Default = false
 })
 
@@ -305,16 +306,19 @@ Movement:AddToggle('Noclip', {
 
 Movement:AddToggle('Noacceleration', {
 	Text = "No Acceleration",
+	Tooltip = "no slipping when running.",
 	Default = false
 })
 
 Movement:AddToggle('FastClosetExit ', {
 	Text = "Fast Closet Exit",
+	Tooltip = "removes closet delay",
 	Default = false
 })
 
 Movement:AddToggle('EnableJump', {
 	Text = "Enable Jump",
+	Tooltip = "enables jump for other floors other then mines.",
 	Default = false
 })
 
@@ -322,7 +326,7 @@ Movement:AddToggle('InfiniteJump', {
 	Text = "Infinite Jump",
 	Default = false
 }):AddKeyPicker("KeyPicker3", {
-	Default = "I",
+	Default = "J",
 	SyncToggleState = true,
 	Mode = "Toggle",
 	Text = "Infinite jump"
@@ -330,26 +334,30 @@ Movement:AddToggle('InfiniteJump', {
 
 Exploits:AddToggle('CrouchSpoof', {
 	Text = "Crouch Spoof",
+	Tooltip = "figure wont hear you so it technically makes the game thing you are crouching",
 	Default = false
 })
 
 Exploits:AddToggle('DoorReach', {
 	Text = "Door Reach",
+	Tooltip = "if you use this u will open doors in longer range.",
 	Default = false
 })
 
 Exploits:AddSlider("DoorReachRange", {
 	Text = "Door Reach Range",
-	Default = 20,
+	Default = 30,
 	Min = 15,
 	Max = 30,
 	Rounding = 1,
+	Tooltip = "range slider for door reach",
 	Compact = true
 })
 
 Visuals:AddToggle('Ambient', { 
 	Text = "Ambient", 
 	Default = false,
+	Tooltip = "makes all rooms bright",
 	Callback = function(Value)
 		if not Value then Lighting.GlobalShadows = true Lighting.Ambient = Color3.fromRGB(0, 0, 0) end
 	end
@@ -534,7 +542,7 @@ Library.ToggleKeybind = Options.MenuKeybind
 SettingsBox:AddToggle("ShowKeybinds", {
 	Text = "Show Keybinds",
 	Default = false,
-	Tooltip = "shows u keybinds for some toggles",
+	Tooltip = "shows keybinds for toggles",
 }):OnChanged(function()
 	Library.KeybindFrame.Visible = Toggles.ShowKeybinds.Value
 end)
