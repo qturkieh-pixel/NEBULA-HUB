@@ -34,6 +34,7 @@ local function SetupCollisionClone(char)
 	CollisionClone.Name = "CollisionPartClone"
 	CollisionClone.Parent = char 
 	CollisionClone.Massless = true
+	CollisionClone.CanCollide = false
 
 	local crouch = CollisionClone:FindFirstChild("CollisionCrouch")
 	if crouch then crouch:Destroy() end
@@ -86,6 +87,7 @@ local Window = Library:CreateWindow({
 })
 
 local Tabs = {
+	Info = Window:AddTab('Info', "circle-user-round"),
 	Main = Window:AddTab('Main', "shield"),
 	Exploits = Window:AddTab('Exploits', "axe"),
 	Visuals = Window:AddTab('Visuals', "camera"),
@@ -93,8 +95,7 @@ local Tabs = {
 	UISettings = Window:AddTab('Configuration', "house"),
 }
 
--- Fwemboys are so tight~ >w< <3
-
+local Information = Tabs.Info:AddLeftGroupbox('Information')
 local Movement = Tabs.Main:AddLeftGroupbox('Movement')
 local Exploits = Tabs.Exploits:AddLeftGroupbox('Bypass')
 local Anti = Tabs.Exploits:AddRightGroupbox('Anti')
@@ -109,6 +110,9 @@ Credits:AddLabel("firebacon (credits maker)", true)
 Credits:AddLabel("realheckersbrother (main dev)", true)
 Credits:AddLabel("kardincat (coder)", true)
 
+Information:AddLabel("nebula hub:)", true)
+Information:AddLabel("any bugs? REPORT IN DISCORD SERVER!", true)
+Information:AddLabel("https://discord.gg/2tTc7NmYR3", true)
 Fun:AddButton({
 	Text = "Fling doors",
 	Func = function()
@@ -250,8 +254,6 @@ Anti:AddToggle('AntiSnare', {
 	Default = false
 })
 
--- Femboys are so bwreedable~ owoo
-
 Anti:AddToggle('AntiHalt', { 
 	Text = "Anti-Halt", 
 	Default = false,
@@ -262,6 +264,7 @@ Anti:AddToggle('AntiHalt', {
 		end
 	end
 })
+
 Anti:AddToggle('AntiA90', { 
 	Text = "Anti-A90", 
 	Default = false,
@@ -310,7 +313,7 @@ Movement:AddToggle('Noacceleration', {
 	Default = false
 })
 
-Movement:AddToggle('FastClosetExit ', {
+Movement:AddToggle('FastClosetExit', {
 	Text = "Fast Closet Exit",
 	Tooltip = "removes closet delay",
 	Default = false
@@ -359,17 +362,23 @@ Visuals:AddToggle('Ambient', {
 	Default = false,
 	Tooltip = "makes all rooms bright",
 	Callback = function(Value)
-		if not Value then Lighting.GlobalShadows = true Lighting.Ambient = Color3.fromRGB(0, 0, 0) end
+		if not Value then
+			Lighting.GlobalShadows = true
+			Lighting.Ambient = Color3.fromRGB(0, 0, 0)
+		end
 	end
 })
 
 Toggles.EnableWalkSpeed:OnChanged(function(Value)
-	if not Value and Character:FindFirstChildOfClass("Humanoid") then Character.Humanoid.WalkSpeed = 16 end
+	if not Value and Character:FindFirstChildOfClass("Humanoid") then
+		Character.Humanoid.WalkSpeed = Options.WalkspeedSlider.Value 
+	end
 end)
 
 Toggles.Noacceleration:OnChanged(function(Value)
 	if not Value and Character:FindFirstChild("HumanoidRootPart") then 
-		Character.HumanoidRootPart.CustomPhysicalProperties = PhysicalProperties.new(0.4, 0.5, 0.5) 
+		Character.HumanoidRootPart.CustomPhysicalProperties = PhysicalProperties.new(100, 0.5, 0.5)
+		-- Character.HumanoidRootPart.CustomPhysicalProperties = PhysicalProperties.new(0.4, 0.5, 0.5) 
 	end
 end)
 
@@ -434,8 +443,6 @@ table.insert(Connections, UserInputService.JumpRequest:Connect(function()
 	end
 end))
 
--- Femboys get so wet and nweedy so fast~ <3
-
 table.insert(Connections, RunService.RenderStepped:Connect(function()
 	if not Character or not Character:FindFirstChildOfClass("Humanoid") or Character.Humanoid.Health <= 0 then
 		return
@@ -451,11 +458,6 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 				v.CanCollide = false
 			end
 		end
-	end
-
-	if Toggles.EnableWalkSpeed.Value then Character.Humanoid.WalkSpeed = Options.WalkspeedSlider.Value end
-	if Toggles.Noacceleration.Value and Character:FindFirstChild("HumanoidRootPart") then 
-		Character.HumanoidRootPart.CustomPhysicalProperties = PhysicalProperties.new(100, 0.5, 0.5) 
 	end
 
 	Camera.FieldOfView = Options.FOVSlider.Value
@@ -514,8 +516,6 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 
 	Character:SetAttribute("CanJump", Toggles.EnableJump.Value)
 end))
-
--- I wanna ruin a cute fwemboy so bad~ ;3
 
 LocalPlayer.CharacterAdded:Connect(function(newChar)
 	repeat task.wait() until LocalPlayer:HasAppearanceLoaded()
