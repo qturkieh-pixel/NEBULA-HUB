@@ -81,7 +81,7 @@ local function removeesp(v)
 end
 
 local Window = Library:CreateWindow({
-	Title = 'Nebula Hub',
+	Title = 'Nebula Hub | DOORS👁️',
 	Center = true,
 	AutoShow = true
 })
@@ -125,12 +125,14 @@ Credits:AddLabel("qai (owner)", true)
 Credits:AddLabel("firebacon (credits maker)", true)
 Credits:AddLabel("realheckersbrother (main dev)", true)
 Credits:AddLabel("kardincat (coder)", true)
+Credits:AddLabel("redtree (speed bypass helper)", true)
 
 Information:AddLabel("nebula hub:)", true)
 Information:AddLabel("any bugs? REPORT IN DISCORD SERVER!", true)
 Information:AddLabel("https://discord.gg/2tTc7NmYR3", true)
+Information:AddLabel("status:🟢", true)
 Fun:AddButton({
-	Text = "Fling doors",
+	Text = "Fling doors (not finished)",
 	Func = function()
 		for _, Door in ipairs(workspace:GetDescendants()) do
 			if Door.Name == "Door" and isnetworkowner(Door) then
@@ -164,15 +166,6 @@ Visuals:AddToggle('EntitesESP', {
 	Default = false
 })
 
-Visuals:AddDropdown("EntitiesPicker", {
-	Values = { 
-		"Rush", "Ambush" 
-	},
-	Default = 1,
-	Multi = true,
-	Text = "Entities"
-})
-
 local function checkEntity(v)
 	if not Options.EntitiesPicker then
 		return
@@ -199,7 +192,7 @@ workspace.ChildAdded:Connect(checkEntity)
 
 Settings:AddSlider("FOVSlider", {
 	Text = "FOV Slider",
-	Default = 90,
+	Default = 80,
 	Min = 10,
 	Max = 120,
 	Rounding = 1,
@@ -207,13 +200,21 @@ Settings:AddSlider("FOVSlider", {
 })
 
 Settings:AddToggle('SpectateEntity', {
-	Text = "Entity POV",
+	Text = "Spectate Entity",
 	Default = false 
 })
 
 Settings:AddToggle('EntitesNotify', {
-	Text = "Entities Notify",
+	Text = "Notify Entities",
 	Default = false
+})
+Settings:AddDropdown("EntitiesPicker", {
+	Values = { 
+		"Rush", "Ambush" 
+	},
+	Default = 1,
+	Multi = true,
+	Text = "Entities"
 })
 
 Settings:AddDivider()
@@ -222,7 +223,7 @@ Settings:AddToggle('ThirdPerson', {
 	Text = "Third Person",
 	Default = false
 }):AddKeyPicker("KeyPicker", {
-	Default = "V",
+	Default = "T",
 	SyncToggleState = true, 
 	Mode = "Toggle",
 	Text = "Third person"
@@ -230,7 +231,7 @@ Settings:AddToggle('ThirdPerson', {
 
 Settings:AddSlider("OffsetX", {
 	Text = "X offset",
-	Default = -1,
+	Default = 1,
 	Min = -10,
 	Max = 15,
 	Rounding = 1,
@@ -239,7 +240,7 @@ Settings:AddSlider("OffsetX", {
 
 Settings:AddSlider("OffsetY", {
 	Text = "Y offset",
-	Default = -0.1,
+	Default = 1,
 	Min = -10,
 	Max = 15,
 	Rounding = 1,
@@ -347,12 +348,8 @@ Movement:AddToggle('EnableSlide', {
 })
 Movement:AddToggle('InfiniteJump', {
 	Text = "Infinite Jump",
+	Tooltip = "jump as many times as u want mid air.",
 	Default = false
-}):AddKeyPicker("KeyPicker3", {
-	Default = "J",
-	SyncToggleState = true,
-	Mode = "Toggle",
-	Text = "Infinite jump"
 })
 
 Exploits:AddToggle('BypassSpeed', {
@@ -363,7 +360,7 @@ Exploits:AddToggle('BypassSpeed', {
 
 Exploits:AddToggle('CrouchSpoof', {
 	Text = "Crouch Spoof",
-	Tooltip = "figure wont hear you so it technically makes the game thing you are crouching",
+	Tooltip = "figure wont hear you so it technically makes the game think you are crouching",
 	Default = false
 })
 
@@ -375,7 +372,7 @@ Exploits:AddToggle('DoorReach', {
 
 Exploits:AddSlider("DoorReachRange", {
 	Text = "Door Reach Range",
-	Default = 30,
+	Default = 15,
 	Min = 15,
 	Max = 30,
 	Rounding = 1,
@@ -386,7 +383,7 @@ Exploits:AddSlider("DoorReachRange", {
 Visuals:AddToggle('Ambient', { 
 	Text = "Ambient", 
 	Default = false,
-	Tooltip = "makes all rooms bright",
+	Tooltip = "makes all rooms bright including dark rooms.w",
 	Callback = function(Value)
 		if not Value then
 			Lighting.GlobalShadows = true
