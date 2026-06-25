@@ -92,6 +92,7 @@ local Tabs = {
 	Exploits = Window:AddTab('Exploits', "axe"),
 	Visuals = Window:AddTab('Visuals', "camera"),
 	Fun = Window:AddTab('Fun & Trolling', "car"),
+	Scripts = Window:AddTab('Scripts', "code"),
 	UISettings = Window:AddTab('Configuration', "house"),
 }
 
@@ -103,7 +104,22 @@ local Visuals = Tabs.Visuals:AddLeftGroupbox('Visuals')
 local Settings = Tabs.Visuals:AddRightGroupbox('settings')
 local SettingsBox = Tabs.UISettings:AddLeftGroupbox('UI')
 local Fun = Tabs.Fun:AddLeftGroupbox('Fun & Trolling')
+local ScriptsBox = Tabs.Scripts:AddLeftGroupbox('Scripts')
 local Credits = Tabs.UISettings:AddRightGroupbox("Credits")
+
+ScriptsBox:AddButton({
+	Text = "Load IYHUB",
+	Func = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/RedTree1222/IYHUB/refs/heads/main/IYHUB.luau"))()
+	end
+})
+
+ScriptsBox:AddButton({
+	Text = "Load ContentHub",
+	Func = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/RedTree1222/Content/refs/heads/main/ContentHub.luau"))()
+	end
+})
 
 Credits:AddLabel("qai (owner)", true)
 Credits:AddLabel("firebacon (credits maker)", true)
@@ -324,7 +340,11 @@ Movement:AddToggle('EnableJump', {
 	Tooltip = "enables jump for other floors other then mines.",
 	Default = false
 })
-
+Movement:AddToggle('EnableSlide', {
+	Text = "Enable Sliding",
+	Tooltip = "enables sliding",
+	Default = false
+})
 Movement:AddToggle('InfiniteJump', {
 	Text = "Infinite Jump",
 	Default = false
@@ -333,6 +353,12 @@ Movement:AddToggle('InfiniteJump', {
 	SyncToggleState = true,
 	Mode = "Toggle",
 	Text = "Infinite jump"
+})
+
+Exploits:AddToggle('BypassSpeed', {
+	Text = "Speed Bypass",
+	Tooltip = "bypasses the server speed check while using speed boost.",
+	Default = false
 })
 
 Exploits:AddToggle('CrouchSpoof', {
@@ -515,6 +541,20 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 	end
 
 	Character:SetAttribute("CanJump", Toggles.EnableJump.Value)
+	Character:SetAttribute("CanSlide", Toggles.EnableSlide.Value)
+
+	if Toggles.EnableWalkSpeed.Value then
+		local hum = Character:FindFirstChildOfClass("Humanoid")
+		if hum then
+			hum.WalkSpeed = Options.WalkspeedSlider.Value
+			if Toggles.BypassSpeed.Value then
+				local crouchRem = RemoteFolder:FindFirstChild("Crouch") or ReplicatedStorage:FindFirstChild("Crouch", true)
+				if crouchRem then
+					crouchRem:FireServer(false, Options.WalkspeedSlider.Value)
+				end
+			end
+		end
+	end
 end))
 
 LocalPlayer.CharacterAdded:Connect(function(newChar)
