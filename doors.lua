@@ -98,6 +98,7 @@ local Tabs = {
 
 local Information = Tabs.Info:AddLeftGroupbox('Information')
 local Movement = Tabs.Main:AddLeftGroupbox('Movement')
+local MiscBox = Tabs.Main:AddRightGroupbox('Utilities')
 local Exploits = Tabs.Exploits:AddLeftGroupbox('Bypass')
 local Anti = Tabs.Exploits:AddRightGroupbox('Anti')
 local Visuals = Tabs.Visuals:AddLeftGroupbox('Visuals')
@@ -121,11 +122,55 @@ ScriptsBox:AddButton({
 	end
 })
 
+MiscBox:AddButton({
+	Text = "New Run",
+	Tooltip = "Joins a fresh run. Click twice to confirm.",
+	DoubleClick = true,
+	Func = function()
+		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
+		if rf and rf:FindFirstChild("PlayAgain") then rf.PlayAgain:FireServer() end
+	end
+})
+
+MiscBox:AddButton({
+	Text = "Back to Lobby",
+	Tooltip = "Teleports you back to the main lobby. Click twice.",
+	DoubleClick = true,
+	Func = function()
+		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
+		if rf and rf:FindFirstChild("Lobby") then rf.Lobby:FireServer() end
+	end
+})
+
+MiscBox:AddButton({
+	Text = "Revive",
+	Tooltip = "Uses your revive if available. Click twice.",
+	DoubleClick = true,
+	Func = function()
+		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
+		if rf and rf:FindFirstChild("Revive") then rf.Revive:FireServer() end
+	end
+})
+
+MiscBox:AddButton({
+	Text = "Kill Self",
+	Tooltip = "Kills your character. May take a moment. Click twice.",
+	DoubleClick = true,
+	Func = function()
+		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
+		local hum = Character and Character:FindFirstChildOfClass("Humanoid")
+		if rf and rf:FindFirstChild("Underwater") then
+			rf.Underwater:FireServer(true)
+		elseif hum then
+			hum.Health = 0
+		end
+	end
+})
+
 Credits:AddLabel("qai (owner)", true)
-Credits:AddLabel("firebacon (credits maker)", true)
 Credits:AddLabel("realheckersbrother (main dev)", true)
 Credits:AddLabel("kardincat (coder)", true)
-Credits:AddLabel("redtree (speed bypass helper)", true)
+Credits:AddLabel("redtree/triteeth (co-owner)", true)
 
 Information:AddLabel("nebula hub:)", true)
 Information:AddLabel("any bugs? REPORT IN DISCORD SERVER!", true)
@@ -329,6 +374,11 @@ Movement:AddToggle('Noacceleration', {
 	Tooltip = "no slipping when running.",
 	Default = false
 })
+Movement:AddToggle('RemoveCamBobbing', {
+	Text = "no camera bobbing/shake",
+	Tooltip = "no more shaking and bobbing",
+	Default = false
+})
 
 Movement:AddToggle('FastClosetExit', {
 	Text = "Fast Closet Exit",
@@ -341,11 +391,13 @@ Movement:AddToggle('EnableJump', {
 	Tooltip = "enables jump for other floors other then mines.",
 	Default = false
 })
+
 Movement:AddToggle('EnableSlide', {
 	Text = "Enable Sliding",
 	Tooltip = "enables sliding",
 	Default = false
 })
+
 Movement:AddToggle('InfiniteJump', {
 	Text = "Infinite Jump",
 	Tooltip = "jump as many times as u want mid air.",
@@ -377,6 +429,24 @@ Exploits:AddSlider("DoorReachRange", {
 	Max = 30,
 	Rounding = 1,
 	Tooltip = "range slider for door reach",
+	Compact = true
+})
+
+Exploits:AddDivider()
+
+Exploits:AddToggle('KnobCollector', {
+	Text = "Gold Knob Farm",
+	Tooltip = "automatically collects gold knobs in the current room.",
+	Default = false
+})
+
+Exploits:AddSlider("KnobRadius", {
+	Text = "Collect Radius",
+	Default = 20,
+	Min = 5,
+	Max = 60,
+	Rounding = 0,
+	Tooltip = "how close a knob needs to be to get collected.",
 	Compact = true
 })
 
@@ -456,6 +526,12 @@ local function UpdateRoomAssets()
 		end
 	end
 end
+
+Toggles.RemoveCamBobbing:OnChanged(function(val)
+	local mg = LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("MainUI")
+	local spring = mg and mg:FindFirstChild("Initiator") and mg.Initiator:FindFirstChild("Main_Game")
+	if spring then spring.spring = val and 9e9 or 8 end
+end)
 
 table.insert(Connections, LocalPlayer:GetAttributeChangedSignal("CurrentRoom"):Connect(UpdateRoomAssets))
 
@@ -553,6 +629,28 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 		end
 	end
 end))
+
+task.spawn(function()
+	while true do
+		task.wait(0.5)
+		if not Toggles.KnobCollector or not Toggles.KnobCollector.Value then continue end
+		local root = Character and Character:FindFirstChild("HumanoidRootPart")
+		if not root then continue end
+		local grabRange = Options.KnobRadius and Options.KnobRadius.Value or 20
+		for _, pile in ipairs(workspace:GetDescendants()) do
+			if (pile.Name == "GoldPile" or pile.Name == "Knob" or pile.Name == "GoldKnob") then
+				local hitbox = pile:IsA("BasePart") and pile or pile:FindFirstChildWhichIsA("BasePart")
+				if hitbox and (root.Position - hitbox.Position).Magnitude <= grabRange then
+					for _, prompt in ipairs(pile:GetDescendants()) do
+						if prompt:IsA("ProximityPrompt") and prompt.Enabled then
+							fireproximityprompt(prompt)
+						end
+					end
+				end
+			end
+		end
+	end
+end)
 
 LocalPlayer.CharacterAdded:Connect(function(newChar)
 	repeat task.wait() until LocalPlayer:HasAppearanceLoaded()
