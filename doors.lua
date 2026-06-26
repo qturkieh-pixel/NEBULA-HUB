@@ -81,7 +81,7 @@ local function removeesp(v)
 end
 
 local Window = Library:CreateWindow({
-	Title = 'Nebula Hub | DOORS👁️',
+	Title = 'Nebula Hub | ' .. ReplicatedStorage.GameData.Floor.Value,
 	Center = true,
 	AutoShow = true
 })
@@ -202,12 +202,12 @@ Visuals:AddToggle('Key',{
 })
 
 Visuals:AddToggle('GateLeverEsp', {
-	Text = "Gate lever Esp",
+	Text = "Gate lever",
 	Default = false
 })
 
 Visuals:AddToggle('EntitesESP', { 
-	Text = "Entities ESP",
+	Text = "Entity",
 	Default = false
 })
 
@@ -276,7 +276,7 @@ Settings:AddToggle('ThirdPerson', {
 
 Settings:AddSlider("OffsetX", {
 	Text = "X offset",
-	Default = 1,
+	Default = 1.4,
 	Min = -10,
 	Max = 15,
 	Rounding = 1,
@@ -285,7 +285,7 @@ Settings:AddSlider("OffsetX", {
 
 Settings:AddSlider("OffsetY", {
 	Text = "Y offset",
-	Default = 1,
+	Default = 0.6,
 	Min = -10,
 	Max = 15,
 	Rounding = 1,
@@ -294,7 +294,7 @@ Settings:AddSlider("OffsetY", {
 
 Settings:AddSlider("OffsetZ", {
 	Text = "Z offset",
-	Default = 1,
+	Default = 7.2,
 	Min = -10,
 	Max = 15,
 	Rounding = 1,
