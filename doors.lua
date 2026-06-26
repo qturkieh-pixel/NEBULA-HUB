@@ -91,8 +91,6 @@ local Tabs = {
 	Main = Window:AddTab('Main', "shield"),
 	Exploits = Window:AddTab('Exploits', "axe"),
 	Visuals = Window:AddTab('Visuals', "camera"),
-	Fun = Window:AddTab('Fun & Trolling', "car"),
-	Scripts = Window:AddTab('Scripts', "code"),
 	UISettings = Window:AddTab('Configuration', "house"),
 }
 
@@ -104,23 +102,8 @@ local Anti = Tabs.Exploits:AddRightGroupbox('Anti')
 local Visuals = Tabs.Visuals:AddLeftGroupbox('Visuals')
 local Settings = Tabs.Visuals:AddRightGroupbox('settings')
 local SettingsBox = Tabs.UISettings:AddLeftGroupbox('UI')
-local Fun = Tabs.Fun:AddLeftGroupbox('Fun & Trolling')
-local ScriptsBox = Tabs.Scripts:AddLeftGroupbox('Scripts')
 local Credits = Tabs.UISettings:AddRightGroupbox("Credits")
 
-ScriptsBox:AddButton({
-	Text = "Load IYHUB",
-	Func = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/RedTree1222/IYHUB/refs/heads/main/IYHUB.luau"))()
-	end
-})
-
-ScriptsBox:AddButton({
-	Text = "Load ContentHub",
-	Func = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/RedTree1222/Content/refs/heads/main/ContentHub.luau"))()
-	end
-})
 
 MiscBox:AddButton({
 	Text = "New Run",
@@ -176,20 +159,6 @@ Information:AddLabel("nebula hub:)", true)
 Information:AddLabel("any bugs? REPORT IN DISCORD SERVER!", true)
 Information:AddLabel("https://discord.gg/2tTc7NmYR3", true)
 Information:AddLabel("status:🟢", true)
-Fun:AddButton({
-	Text = "Fling doors (not finished)",
-	Func = function()
-		for _, Door in ipairs(workspace:GetDescendants()) do
-			if Door.Name == "Door" and isnetworkowner(Door) then
-				local vel = Door:FindFirstChild("DoorBreakVelocity") or Instance.new("BodyPosition")
-				vel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-				vel.Name = "DoorBreakVelocity"
-				vel.Position = (Door:GetAttribute("OriginalPosition") or Door.Position) + Vector3.new(math.random(-125, 125), math.random(-125, 125), math.random(-125, 125))
-				vel.Parent = Door
-			end
-		end
-	end
-})
 
 Visuals:AddToggle('Door', {
 	Text = "Door",
