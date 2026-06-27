@@ -83,7 +83,8 @@ end
 local Window = Library:CreateWindow({
 	Title = 'Nebula Hub | ' .. ReplicatedStorage.GameData.Floor.Value,
 	Center = true,
-	AutoShow = true
+	AutoShow = true,
+	ShowCustomCursor = false,
 })
 
 local Tabs = {
@@ -436,11 +437,22 @@ Toggles.EnableWalkSpeed:OnChanged(function(Value)
 		Character.Humanoid.WalkSpeed = Options.WalkspeedSlider.Value 
 	end
 end)
-
+local PartProperties = {}
+	CustomPhysics = PhysicalProperties.new(
+		100,
+		Character.HumanoidRootPart.CustomPhysicalProperties.Friction,
+		Character.HumanoidRootPart.CustomPhysicalProperties.Elasticity,
+		Character.HumanoidRootPart.CustomPhysicalProperties.FrictionWeight,
+		Character.HumanoidRootPart.CustomPhysicalProperties.ElasticityWeight
+	)
+	for _, Part in Character:GetDescendants() do
+		if Part:IsA("BasePart") then
+			PartProperties[Part] = Part.CustomPhysicalProperties
+		end
+	end
 Toggles.Noacceleration:OnChanged(function(Value)
-	if not Value and Character:FindFirstChild("HumanoidRootPart") then 
-		Character.HumanoidRootPart.CustomPhysicalProperties = PhysicalProperties.new(100, 0.5, 0.5)
-		-- Character.HumanoidRootPart.CustomPhysicalProperties = PhysicalProperties.new(0.4, 0.5, 0.5) 
+	for Index, Old in PartProperties do
+		Index.CustomPhysicalProperties = Value and CustomPhysics or Old
 	end
 end)
 
@@ -498,7 +510,7 @@ end
 
 Toggles.RemoveCamBobbing:OnChanged(function(val)
 	local mg = LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("MainUI")
-	local spring = mg and mg:FindFirstChild("Initiator") and mg.Initiator:FindFirstChild("Main_Game")
+	local spring = mg and mg:FindFirstChild("Initiator") and require(mg.Initiator:FindFirstChild("Main_Game"))
 	if spring then spring.spring = val and 9e9 or 8 end
 end)
 
@@ -566,7 +578,7 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 			crouchRem:FireServer(true) 
 		end
 	end
-
+	
 	if Toggles.DoorReach.Value and game.ReplicatedStorage:FindFirstChild("GameData") and game.ReplicatedStorage.GameData:FindFirstChild("LatestRoom") then
 		local latestRoomIdx = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value)
 		local room = workspace.CurrentRooms:FindFirstChild(latestRoomIdx)
@@ -590,10 +602,7 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 		if hum then
 			hum.WalkSpeed = Options.WalkspeedSlider.Value
 			if Toggles.BypassSpeed.Value then
-				local crouchRem = RemoteFolder:FindFirstChild("Crouch") or ReplicatedStorage:FindFirstChild("Crouch", true)
-				if crouchRem then
-					crouchRem:FireServer(false, Options.WalkspeedSlider.Value)
-				end
+				game:GetService("ReplicatedStorage").RemotesFolder.Crouch:FireServer(true, true)
 			end
 		end
 	end
