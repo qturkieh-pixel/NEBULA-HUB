@@ -344,11 +344,6 @@ Movement:AddToggle('Noacceleration', {
 	Tooltip = "no slipping when running.",
 	Default = false
 })
-Movement:AddToggle('RemoveCamBobbing', {
-	Text = "no camera bobbing/shake",
-	Tooltip = "no more shaking and bobbing",
-	Default = false
-})
 
 Movement:AddToggle('FastClosetExit', {
 	Text = "Fast Closet Exit",
@@ -450,6 +445,7 @@ local PartProperties = {}
 			PartProperties[Part] = Part.CustomPhysicalProperties
 		end
 	end
+
 Toggles.Noacceleration:OnChanged(function(Value)
 	for Index, Old in PartProperties do
 		Index.CustomPhysicalProperties = Value and CustomPhysics or Old
@@ -507,12 +503,6 @@ local function UpdateRoomAssets()
 		end
 	end
 end
-
-Toggles.RemoveCamBobbing:OnChanged(function(val)
-	local mg = LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("MainUI")
-	local spring = mg and mg:FindFirstChild("Initiator") and require(mg.Initiator:FindFirstChild("Main_Game"))
-	if spring then spring.spring = val and 9e9 or 8 end
-end)
 
 table.insert(Connections, LocalPlayer:GetAttributeChangedSignal("CurrentRoom"):Connect(UpdateRoomAssets))
 
