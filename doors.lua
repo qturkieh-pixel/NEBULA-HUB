@@ -318,7 +318,7 @@ Movement:AddSlider("WalkspeedSlider", {
 	Text = "Speed",
 	Default = 25,
 	Min = 16,
-	Max = 60,
+	Max = 85,
 	Rounding = 1,
 	Compact = true
 })
