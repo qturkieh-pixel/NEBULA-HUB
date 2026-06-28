@@ -184,6 +184,11 @@ Visuals:AddToggle('EntitesESP', {
 	Default = false
 })
 
+Visuals:AddToggle('RemoveCameraShake', {
+	Text = 'No Camera Shake',
+	Default = false
+})	
+
 local function checkEntity(v)
 	if not Options.EntitiesPicker then
 		return
@@ -313,7 +318,9 @@ Anti:AddToggle('AntiScreech', {
 	Default = false,
 	Callback = function(Value)
 		local Screech = Modules:FindFirstChild("Screech") or Modules:FindFirstChild("_Screech")
-		if Screech then Screech.Name = Value and "_Screech" or "Screech" end
+		if Screech then
+                    Screech.Name = Value and "_Screech" or "Screech"
+                end
 	end
 })
 
@@ -502,7 +509,7 @@ local function UpdateRoomAssets()
 end
 
 table.insert(Connections, LocalPlayer:GetAttributeChangedSignal("CurrentRoom"):Connect(UpdateRoomAssets))
-
+local Main_Game = require(LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game)
 table.insert(Connections, UserInputService.JumpRequest:Connect(function()
 	if Toggles.InfiniteJump.Value and Character:FindFirstChildOfClass("Humanoid") then
 		task.wait(0.05)
@@ -526,6 +533,10 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 			end
 		end
 	end
+
+	if Toggles.RemoveCameraShake.Value then
+            Main_Game.csgo = CFrame.new() 
+        end
 
 	Camera.FieldOfView = Options.FOVSlider.Value
 
@@ -673,4 +684,4 @@ SettingsBox:AddButton({
 	Func = function()
 		toclipboard("https://discord.gg/UVZzD4TdDY")
 	end
-})	
+})
