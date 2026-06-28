@@ -82,7 +82,7 @@ end
 
 local Window = Library:CreateWindow({
 	Title = 'Nebula Hub | ' .. ReplicatedStorage.GameData.Floor.Value,
-	Footer = "beta",
+	Footer = "beta v0.4",
 	Center = true,
 	AutoShow = true,
 	ShowCustomCursor = false,
