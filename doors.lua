@@ -82,6 +82,7 @@ end
 
 local Window = Library:CreateWindow({
 	Title = 'Nebula Hub | ' .. ReplicatedStorage.GameData.Floor.Value,
+	Footer = "beta",
 	Center = true,
 	AutoShow = true,
 	ShowCustomCursor = false,
@@ -92,6 +93,7 @@ local Tabs = {
 	Main = Window:AddTab('Main', "shield"),
 	Exploits = Window:AddTab('Exploits', "axe"),
 	Visuals = Window:AddTab('Visuals', "camera"),
+	Floors = Window:AddTab('Floors', "monitor-smartphone"),
 	UISettings = Window:AddTab('Configuration', "house"),
 }
 
@@ -101,13 +103,14 @@ local MiscBox = Tabs.Main:AddRightGroupbox('Utilities')
 local Exploits = Tabs.Exploits:AddLeftGroupbox('Bypass')
 local Anti = Tabs.Exploits:AddRightGroupbox('Anti')
 local Visuals = Tabs.Visuals:AddLeftGroupbox('Visuals')
+local Floors = Tabs.Floors:AddLeftGroupbox('Coming Soon')
 local Settings = Tabs.Visuals:AddRightGroupbox('settings')
 local SettingsBox = Tabs.UISettings:AddLeftGroupbox('UI')
 local Credits = Tabs.UISettings:AddRightGroupbox("Credits")
 
 
 MiscBox:AddButton({
-	Text = "New Run",
+	Text = "Play again",
 	Tooltip = "Joins a fresh run. Click twice to confirm.",
 	DoubleClick = true,
 	Func = function()
@@ -150,11 +153,11 @@ MiscBox:AddButton({
 		end
 	end
 })
+Floors:AddLabel("coming soon")
 
 Credits:AddLabel("qai (owner)", true)
 Credits:AddLabel("realheckersbrother (main dev)", true)
 Credits:AddLabel("kardincat (coder)", true)
-Credits:AddLabel("redtree/triteeth (co-owner)", true)
 
 Information:AddLabel("nebula hub:)", true)
 Information:AddLabel("any bugs? REPORT IN DISCORD SERVER!", true)
@@ -207,7 +210,7 @@ workspace.ChildAdded:Connect(checkEntity)
 
 Settings:AddSlider("FOVSlider", {
 	Text = "FOV Slider",
-	Default = 80,
+	Default = 70,
 	Min = 10,
 	Max = 120,
 	Rounding = 1,
@@ -324,8 +327,8 @@ Movement:AddSlider("WalkspeedSlider", {
 })
 
 Movement:AddToggle('EnableWalkSpeed', {
-	Text = "Enable Speed", 
-	Tooltip = "enable a walkspeed as fast as u would like.",
+	Text = "Speed Boost", 
+	Tooltip = "speedboost lol.",
 	Default = false
 })
 
@@ -401,7 +404,7 @@ Exploits:AddToggle('KnobCollector', {
 
 Exploits:AddSlider("KnobRadius", {
 	Text = "Collect Radius",
-	Default = 20,
+	Default = 5,
 	Min = 5,
 	Max = 60,
 	Rounding = 0,
@@ -412,7 +415,7 @@ Exploits:AddSlider("KnobRadius", {
 Visuals:AddToggle('Ambient', { 
 	Text = "Ambient", 
 	Default = false,
-	Tooltip = "makes all rooms bright including dark rooms.w",
+	Tooltip = "makes all rooms bright including dark rooms.",
 	Callback = function(Value)
 		if not Value then
 			Lighting.GlobalShadows = true
@@ -664,3 +667,10 @@ SettingsBox:AddButton({
 		end
 	end
 })
+
+SettingsBox:AddButton({
+	Text = "copy discord invite",
+	Func = function()
+		toclipboard("https://discord.gg/UVZzD4TdDY")
+	end
+})	
