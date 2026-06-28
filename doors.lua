@@ -369,12 +369,6 @@ Movement:AddToggle('InfiniteJump', {
 	Default = false
 })
 
-Exploits:AddToggle('BypassSpeed', {
-	Text = "Speed Bypass",
-	Tooltip = "bypasses the server speed check while using speed boost.",
-	Default = false
-})
-
 Exploits:AddToggle('CrouchSpoof', {
 	Text = "Crouch Spoof",
 	Tooltip = "figure wont hear you so it technically makes the game think you are crouching",
@@ -591,9 +585,7 @@ table.insert(Connections, RunService.RenderStepped:Connect(function()
 		local hum = Character:FindFirstChildOfClass("Humanoid")
 		if hum then
 			hum.WalkSpeed = Options.WalkspeedSlider.Value
-			if Toggles.BypassSpeed.Value then
 				game:GetService("ReplicatedStorage").RemotesFolder.Crouch:FireServer(true, true)
-			end
 		end
 	end
 end))
