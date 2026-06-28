@@ -186,9 +186,14 @@ Visuals:AddToggle('EntitesESP', {
 
 Visuals:AddToggle('RemoveCameraShake', {
 	Text = 'No Camera Shake',
+	Tooltip = "just removes cam shake.",
 	Default = false
 })	
-
+Visuals:AddToggle('RemoveCameraBobbing', {
+	Text = "No Camera Bobbing",
+	Tooltip = "just removes bobbing",
+	Default = false
+})
 local function checkEntity(v)
 	if not Options.EntitiesPicker then
 		return
@@ -493,6 +498,8 @@ local function UpdateRoomAssets()
 		addesp(room.Door.Door, "Door " .. (room.Door:GetAttribute("RoomID") or currentRoomIdx), Color3.new(0, 1, 0))
 	end
 
+
+
 	if Toggles.Key.Value then
 		local Key = workspace:FindFirstChild("KeyObtain", true)
 		if Key then
@@ -518,6 +525,10 @@ table.insert(Connections, UserInputService.JumpRequest:Connect(function()
 end))
 
 table.insert(Connections, RunService.RenderStepped:Connect(function()
+if Main_Game and Toggles.RemoveCameraBobbing.Value then
+        Main_Game.spring.Speed = 9e9
+    end
+
 	if not Character or not Character:FindFirstChildOfClass("Humanoid") or Character.Humanoid.Health <= 0 then
 		return
 	end
