@@ -19,17 +19,35 @@ local Options = Library.Options
 local Toggles = Library.Toggles
 
 local ClientModules = ReplicatedStorage:FindFirstChild("ModulesClient") or ReplicatedStorage:FindFirstChild("ClientModules") 
-local RemoteFolder = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
+local RemotesFolder = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
 
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+
 local Modules = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainUI"):WaitForChild("Initiator"):WaitForChild("Main_Game"):WaitForChild("RemoteListener"):WaitForChild("Modules")
+local Main_Game = require(LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game)
+
+local GameData = ReplicatedStorage:WaitForChild("GameData")
+local LiveModifiers = ReplicatedStorage:FindFirstChild("LiveModifiers")
+
+local Floor = GameData:WaitForChild("Floor").Value
+
+local Functions = {}
+local Lagging = false
+
+local SetClipboard = setclipboard or toclipboard or (Clipboard and Clipboard.set)
+
+if Floor == "Hotel" and RemotesFolder.Name == "Bricks" then
+	Floor = "OldHotel"
+end
 
 local CollisionClone
+local CollisionPart
 
 local function SetupCollisionClone(char)
 	if not char:WaitForChild("CollisionPart", 5) then return end
+        CollisionPart = char.CollisionPart
 	CollisionClone = char.CollisionPart:Clone()
 	CollisionClone.Name = "CollisionPartClone"
 	CollisionClone.Parent = char 
@@ -41,6 +59,40 @@ local function SetupCollisionClone(char)
 end
 
 SetupCollisionClone(Character)
+
+Functions.IsCrouching = function()
+	if Floor == "Fools" or Floor == "OldHotel" then
+		return Character:GetAttribute("Crouching")
+	end
+	return CollisionPart.CollisionGroup == "PlayerCrouching"
+end
+
+Functions.GetInjuriesSpeed = function()
+	return 0.075 * (Character:WaitForChild("Humanoid").MaxHealth - Character:WaitForChild("Humanoid").Health)
+end
+
+Functions.GetCurrentSpeed = function()
+	local Speed = 15
+	Speed += Character:GetAttribute("SpeedBoost") or 0
+	Speed += Character:GetAttribute("SpeedBoostBehind") or 0
+	Speed += Character:GetAttribute("SpeedBoostExtra") or 0
+	Speed += (Floor == "Party" and 10 or 0)
+	Speed += (LiveModifiers:FindFirstChild("PlayerFast") and 3 or 0)
+	Speed += (LiveModifiers:FindFirstChild("PlayerFaster") and 6 or 0)
+	Speed += (LiveModifiers:FindFirstChild("PlayerFastest") and 20 or 0)
+	Speed -= (LiveModifiers:FindFirstChild("PlayerSlow") and 3 or 0)
+	Speed -= (LiveModifiers:FindFirstChild("PlayerSlowHealth") and Functions.GetInjuriesSpeed() or 0)
+	if Functions.IsCrouching() then
+		if LiveModifiers:FindFirstChild("PlayerCrouchSlow") then
+			Speed -= 8
+		elseif LiveModifiers:FindFirstChild("PlayerSlow") then
+			Speed -= 8
+		else
+			Speed -= 5
+		end
+	end
+	return Speed
+end
 
 local function isnetworkowner(part)
 	if typeof(part) ~= "Instance" or not part:IsA("BasePart") then
@@ -114,8 +166,9 @@ MiscBox:AddButton({
 	Tooltip = "Joins a fresh run. Click twice to confirm.",
 	DoubleClick = true,
 	Func = function()
-		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
-		if rf and rf:FindFirstChild("PlayAgain") then rf.PlayAgain:FireServer() end
+		if RemotesFolder:FindFirstChild("PlayAgain") then
+                    RemotesFolder.PlayAgain:FireServer()
+		end
 	end
 })
 
@@ -124,8 +177,9 @@ MiscBox:AddButton({
 	Tooltip = "Teleports you back to the main lobby. Click twice.",
 	DoubleClick = true,
 	Func = function()
-		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
-		if rf and rf:FindFirstChild("Lobby") then rf.Lobby:FireServer() end
+		if RemotesFolder:FindFirstChild("Lobby") then
+                    RemotesFolder.Lobby:FireServer()
+		end
 	end
 })
 
@@ -134,23 +188,22 @@ MiscBox:AddButton({
 	Tooltip = "Uses your revive if available. Click twice.",
 	DoubleClick = true,
 	Func = function()
-		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
-		if rf and rf:FindFirstChild("Revive") then rf.Revive:FireServer() end
+		if RemotesFolder:FindFirstChild("Revive") then
+                    RemotesFolder.Revive:FireServer()
+		end
 	end
 })
 
 MiscBox:AddButton({
-	Text = "Kill Self",
-	Tooltip = "Kills your character. May take a moment. Click twice.",
+	Text = "Reset",
+	Tooltip = "Resets your character. Click twice.",
 	DoubleClick = true,
 	Func = function()
-		local rf = ReplicatedStorage:FindFirstChild("RemotesFolder") or ReplicatedStorage:FindFirstChild("Bricks")
-		local hum = Character and Character:FindFirstChildOfClass("Humanoid")
-		if rf and rf:FindFirstChild("Underwater") then
-			rf.Underwater:FireServer(true)
-		elseif hum then
-			hum.Health = 0
-		end
+            if RemotesFolder:FindFirstChild("Statistics") then
+                  RemotesFolder.Statistics:FireServer()
+	    end
+            task.wait(1)
+            Character:WaitForChild("Humanoid").Health = -1
 	end
 })
 Floors:AddLabel("coming soon")
@@ -201,14 +254,14 @@ local function checkEntity(v)
 	local picker = Options.EntitiesPicker.Value
 	if v.Name == "RushMoving" and picker["Rush"] then
 		if Toggles.EntitesNotify.Value then
-			Library:Notify("Rush has spawned! HIDE!", 3)
+			Library:Notify("Rush has spawned!", 3)
 		end
 		if Toggles.EntitesESP.Value then
 			addentityesp(v, "Rush") 
 		end
 	elseif v.Name == "AmbushMoving" and picker["Ambush"] then
 		if Toggles.EntitesNotify.Value then
-			Library:Notify("Ambush has spawned! HIDE!", 3)
+			Library:Notify("Ambush has spawned!", 3)
 		end
 		if Toggles.EntitesESP.Value then
 			addentityesp(v, "Ambush")
@@ -238,7 +291,7 @@ Settings:AddToggle('EntitesNotify', {
 })
 Settings:AddDropdown("EntitiesPicker", {
 	Values = { 
-		"Rush", "Ambush" 
+		"Rush", "Ambush"
 	},
 	Default = 1,
 	Multi = true,
@@ -437,10 +490,11 @@ Visuals:AddToggle('Ambient', {
 })
 
 Toggles.EnableWalkSpeed:OnChanged(function(Value)
-	if not Value and Character:FindFirstChildOfClass("Humanoid") then
-		Character.Humanoid.WalkSpeed = Options.WalkspeedSlider.Value 
+	if Humanoid then
+		Humanoid.WalkSpeed = Functions.GetCurrentSpeed() + (Value and Options.WalkspeedSlider.Value or 0)
 	end
 end)
+
 local PartProperties = {}
 	CustomPhysics = PhysicalProperties.new(
 		100,
@@ -516,7 +570,7 @@ local function UpdateRoomAssets()
 end
 
 table.insert(Connections, LocalPlayer:GetAttributeChangedSignal("CurrentRoom"):Connect(UpdateRoomAssets))
-local Main_Game = require(LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game)
+
 table.insert(Connections, UserInputService.JumpRequest:Connect(function()
 	if Toggles.InfiniteJump.Value and Character:FindFirstChildOfClass("Humanoid") then
 		task.wait(0.05)
@@ -524,17 +578,36 @@ table.insert(Connections, UserInputService.JumpRequest:Connect(function()
 	end
 end))
 
-table.insert(Connections, RunService.RenderStepped:Connect(function()
-if Main_Game and Toggles.RemoveCameraBobbing.Value then
-        Main_Game.spring.Speed = 9e9
-    end
+Options.WalkspeedSlider:OnChanged(function(Value)
+	if RemotesFolder:FindFirstChild("Crouch") then
+		RemotesFolder.Crouch:FireServer(Value and true or Functions.IsCrouching(), true)
+	end
+end)
 
+table.insert(Connections, CollisionPart:GetPropertyChangedSignal("Anchored"):Connect(function()
+    if CollisionClone and CollisionPart.Anchored and not Character:GetAttribute("Hiding") then
+	Lagging = true
+	CollisionClone.Massless = true
+	task.wait(1)
+	Lagging = false
+    end
+end))
+
+table.insert(Connections, RunService.RenderStepped:Connect(function()
 	if not Character or not Character:FindFirstChildOfClass("Humanoid") or Character.Humanoid.Health <= 0 then
 		return
 	end
 
-	if CollisionClone and Character:FindFirstChild("CollisionPart") then
-		CollisionClone.Massless = Character.CollisionPart.Anchored or true
+	if Toggles.EnableWalkSpeed.Value then
+		Character:FindFirstChildOfClass("Humanoid").WalkSpeed = Functions.GetCurrentSpeed() + Options.WalkspeedSlider.Value
+	end
+
+	--[[if CollisionClone and Character:FindFirstChild("CollisionPart") then
+		CollisionClone.Massless = Character.CollisionPart.Anchored
+	end]]
+
+	if Lagging or (Options.WalkspeedSlider.Value <= 6 --[[and Options.FlySpeed.Value <= 21]]) then
+		CollisionClone.Massless = true
 	end
 
 	if Toggles.Noclip.Value then
@@ -545,14 +618,17 @@ if Main_Game and Toggles.RemoveCameraBobbing.Value then
 		end
 	end
 
-	if Toggles.RemoveCameraShake.Value then
-            Main_Game.csgo = CFrame.new() 
+	if Main_Game then
+            if Toggles.RemoveCameraShake.Value then
+                Main_Game.csgo = CFrame.new() 
+            end
+            Main_Game.spring.Speed = RemoveCameraBobbing and 9e9 or 9
         end
 
 	Camera.FieldOfView = Options.FOVSlider.Value
 
 	if Toggles.AntiEyes.Value and workspace:FindFirstChild("Eyes") then
-		RemoteFolder.MotorReplication:FireServer(-890)
+		RemotesFolder.MotorReplication:FireServer(-890)
 	end
 
 	if Toggles.ThirdPerson.Value then
@@ -575,14 +651,14 @@ if Main_Game and Toggles.RemoveCameraBobbing.Value then
 	end
 
 	if Toggles.FastClosetExit.Value and Character.Humanoid.MoveDirection.Magnitude > 0 then
-		local camLock = RemoteFolder:FindFirstChild("CamLock") or ReplicatedStorage:FindFirstChild("CamLock", true)
+		local camLock = RemotesFolder:FindFirstChild("CamLock") or ReplicatedStorage:FindFirstChild("CamLock", true)
 		if camLock then
 			camLock:FireServer()
 		end
 	end
 
 	if Toggles.CrouchSpoof.Value then
-		local crouchRem = RemoteFolder:FindFirstChild("Crouch") or ReplicatedStorage:FindFirstChild("Crouch", true)
+		local crouchRem = RemotesFolder:FindFirstChild("Crouch") or ReplicatedStorage:FindFirstChild("Crouch", true)
 		if crouchRem then
 			crouchRem:FireServer(true) 
 		end
@@ -610,7 +686,7 @@ if Main_Game and Toggles.RemoveCameraBobbing.Value then
 		local hum = Character:FindFirstChildOfClass("Humanoid")
 		if hum then
 			hum.WalkSpeed = Options.WalkspeedSlider.Value
-				game:GetService("ReplicatedStorage").RemotesFolder.Crouch:FireServer(true, true)
+			RemotesFolder.Crouch:FireServer(true, true)
 		end
 	end
 end))
@@ -691,8 +767,12 @@ SettingsBox:AddButton({
 })
 
 SettingsBox:AddButton({
-	Text = "copy discord invite",
+	Text = "Copy discord invite",
 	Func = function()
-		toclipboard("https://discord.gg/UVZzD4TdDY")
+            if SetClipboard then
+	        SetClipboard("https://discord.gg/UVZzD4TdDY")
+            else
+                Library:Notify("Your executor doesn't support clipboard, heres the invite: https://discord.gg/UVZzD4TdDY", 3)
+            end
 	end
 })
