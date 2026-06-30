@@ -663,7 +663,7 @@ end
 
 local Window = Library:CreateWindow({
 	Title = 'Nebula Hub | ' .. ReplicatedStorage.GameData.Floor.Value,
-	Footer = "beta v0.8",
+	Footer = "beta 0.9",
 	Center = true,
 	AutoShow = true,
 	ShowCustomCursor = false,
@@ -684,6 +684,7 @@ local MiscBox = Tabs.Main:AddRightGroupbox('Utilities')
 local Exploits = Tabs.Exploits:AddLeftGroupbox('Exploits')
 local Anti = Tabs.Exploits:AddRightGroupbox('Anti')
 local Visuals = Tabs.Visuals:AddLeftGroupbox('Visuals')
+local Esp = Tabs.Visuals:AddRightGroupbox('Esp')
 local Floors = Tabs.Floors:AddLeftGroupbox('Coming Soon')
 local Settings = Tabs.Visuals:AddRightGroupbox('settings')
 local SettingsBox = Tabs.UISettings:AddLeftGroupbox('UI')
@@ -695,7 +696,7 @@ MiscBox:AddButton({
 	DoubleClick = true,
 	Func = function()
 		if RemotesFolder:FindFirstChild("PlayAgain") then
-                    RemotesFolder.PlayAgain:FireServer()
+            RemotesFolder.PlayAgain:FireServer()
 		end
 	end
 })
@@ -706,25 +707,25 @@ MiscBox:AddButton({
 	DoubleClick = true,
 	Func = function()
 		if RemotesFolder:FindFirstChild("Lobby") then
-                    RemotesFolder.Lobby:FireServer()
+            RemotesFolder.Lobby:FireServer()
 		end
 	end
 })
 
 MiscBox:AddButton({
 	Text = "Revive",
-	Tooltip = "Uses your revive if available. Click twice.",
+	Tooltip = "uses your revive if you have one click twice",
 	DoubleClick = true,
 	Func = function()
 		if RemotesFolder:FindFirstChild("Revive") then
-                    RemotesFolder.Revive:FireServer()
+            RemotesFolder.Revive:FireServer()
 		end
 	end
 })
 
 MiscBox:AddButton({
 	Text = "Reset",
-	Tooltip = "Resets your character. Click twice.",
+	Tooltip = "resets your character click twice",
 	DoubleClick = true,
 	Func = function()
             if RemotesFolder:FindFirstChild("Statistics") then
@@ -747,33 +748,32 @@ Information:AddLabel("https://discord.gg/2tTc7NmYR3", true)
 Information:AddLabel("losso gexos", true)
 Information:AddLabel("status:🟢", true)
 
-Visuals:AddToggle('Door', {
+Esp:AddToggle('Door', {
 	Text = "Door",
 	Default = false
 })
 
-Visuals:AddToggle('Key',{
+Esp:AddToggle('Key',{
 	Text = "Key",
 	Default = false
 })
 
-Visuals:AddToggle('GateLeverEsp', {
+Esp:AddToggle('GateLeverEsp', {
 	Text = "Gate lever",
 	Default = false
 })
 
-Visuals:AddToggle('EntitesESP', { 
+Esp:AddToggle('EntitesESP', { 
 	Text = "Entity",
 	Default = false
 })
 
-Visuals:AddToggle('BookESP', { 
+Esp:AddToggle('BookESP', { 
 	Text = "Books",
 	Default = false
 })
 
-
-Visuals:AddToggle('Ambient', { 
+Settings:AddToggle('Ambient', { 
 	Text = "Ambient", 
 	Default = false,
 	Tooltip = "makes all rooms bright including dark rooms.",
@@ -832,9 +832,7 @@ Settings:AddToggle('EntitesNotify', {
 	Default = false
 })
 
-Settings:AddDivider()
-
-Settings:AddToggle('ThirdPerson', {
+Visuals:AddToggle('ThirdPerson', {
 	Text = "Third Person",
 	Default = false
 }):AddKeyPicker("KeyPicker", {
@@ -843,8 +841,8 @@ Settings:AddToggle('ThirdPerson', {
 	Mode = "Toggle",
 	Text = "Third person"
 })
-
-Settings:AddSlider("OffsetX", {
+--anyways auto loot (intract) is done
+Visuals:AddSlider("OffsetX", {
 	Text = "X offset",
 	Default = 1.4,
 	Min = -10,
@@ -853,7 +851,7 @@ Settings:AddSlider("OffsetX", {
 	Compact = true
 })
 
-Settings:AddSlider("OffsetY", {
+Visuals:AddSlider("OffsetY", {
 	Text = "Y offset",
 	Default = 0.6,
 	Min = -10,
@@ -862,7 +860,7 @@ Settings:AddSlider("OffsetY", {
 	Compact = true
 })
 
-Settings:AddSlider("OffsetZ", {
+Visuals:AddSlider("OffsetZ", {
 	Text = "Z offset",
 	Default = 7.2,
 	Min = -10,
@@ -1013,7 +1011,7 @@ Movement:AddToggle('Noclip', {
 	Text = "Noclip"
 })
 
-Movement:AddToggle('Noacceleration', {
+Movement:AddToggle('NoAcceleration', {
 	Text = "No Acceleration",
 	Tooltip = "no slipping when running.",
 	Default = false
@@ -1068,9 +1066,267 @@ Exploits:AddSlider("DoorReachRange", {
 Exploits:AddDivider()
 
 Exploits:AddToggle('KnobCollector', {
-	Text = "Auto Collect",
+	Text = "Auto Collect Knobs",
 	Tooltip = "automatically collects gold knobs in the current room.",
 	Default = false
+})
+
+local Loot = false
+Exploits:AddToggle('AutoLoot', {
+	Text = "Auto Loot",
+	Tooltip = "automatically loots everything in the current room.",
+	Default = false,
+	Callback = function(Value)
+if Value and Loot == false then
+    Loot = true
+		 local function items(item1)
+        local function check(item2)
+            if item2:IsA('Model') then
+                if item2.Name == 'Backdoor_Table' or item2.Name == 'Backdoor_Table_Small' then
+                    local _Drawer = item2:FindFirstChild('DrawerContainer')
+                    if _Drawer then
+                        local _Knob = _Drawer:FindFirstChild('Knob')
+                        local _Prompt = _Knob and _Knob:FindFirstChild('ActivateEventPrompt')
+                        
+                        if _Prompt and not _Prompt:GetAttribute('Interactions') and not _Prompt.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                            task.spawn(function()
+                                while Value and not _Prompt:GetAttribute('Interactions') do
+                                    task.wait(0.1)
+                                    local char = _LocalPlayer.Character
+                                    local root = char and char:FindFirstChild("HumanoidRootPart")
+                                    if root and _Knob then
+                                        if (root.Position - _Knob.Position).Magnitude <= 12 then
+                                            fireproximityprompt(_Prompt)
+                                        end
+                                    end
+                                end
+                            end)
+                        end
+                    end
+                elseif item2.Name ~= 'DrawerContainer' then
+                    if item2.Name ~= 'Toolbox' then
+                        if item2.Name ~= 'Locker_Small' then
+                            if item2.Name ~= 'Toolshed_Small' then
+                                if item2.Name ~= 'FuseObtain' then
+                                    if item2:FindFirstChild('PickedUpEvent') then
+                                        if _LocalPlayer.Character and _LocalPlayer.Character:FindFirstChild("Humanoid") and _LocalPlayer.Character.Humanoid.Health ~= 0 and _LocalPlayer:GetAttribute('CurrentRoom') ~= 52 then
+                                            local _ModulePrompt = item2:WaitForChild('ModulePrompt')
+
+                                            if not _ModulePrompt:GetAttribute('Interactions') and not _ModulePrompt.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                                task.spawn(function()
+                                                    while Value and not _ModulePrompt:GetAttribute('Interactions') do
+                                                        task.wait(0.1)
+                                                        local part = item2 and (item2:FindFirstChild("Main") or item2:FindFirstChildWhichIsA("BasePart"))
+                                                        local char = _LocalPlayer.Character
+                                                        local root = char and char:FindFirstChild("HumanoidRootPart")
+
+                                                        if part and root then
+                                                            if (root.Position - part.Position).Magnitude <= 12 then
+                                                                fireproximityprompt(_ModulePrompt)
+                                                            end
+                                                        end
+                                                    end
+                                                end)
+                                            end
+                                        else
+                                            warn('Jeff Shop')
+                                        end
+                                    elseif item2.Name ~= 'GoldPile' then
+                                        if item2.Name:sub(1, 8) ~= 'ChestBox' then
+                                            if item2.Name == 'RolltopContainer' then
+                                                local _ActivateEventPrompt = item2:FindFirstChild('ActivateEventPrompt')
+
+                                                if _ActivateEventPrompt and not _ActivateEventPrompt:GetAttribute('Interactions') and not _ActivateEventPrompt.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                                    task.spawn(function()
+                                                        while Value and not _ActivateEventPrompt:GetAttribute('Interactions') do
+                                                            task.wait(0.1)
+                                                            local part = item2 and (item2.PrimaryPart or item2:FindFirstChildWhichIsA("BasePart"))
+                                                            local char = _LocalPlayer.Character
+                                                            local root = char and char:FindFirstChild("HumanoidRootPart")
+
+                                                            if part and root then
+                                                                if (root.Position - part.Position).Magnitude <= 12 then
+                                                                    fireproximityprompt(_ActivateEventPrompt)
+                                                                end
+                                                            end
+                                                        end
+                                                    end)
+                                                end
+                                            end
+                                        else
+                                            local _ActivateEventPrompt2 = item2:FindFirstChild('ActivateEventPrompt')
+
+                                            if _ActivateEventPrompt2 and not _ActivateEventPrompt2:GetAttribute('Interactions') and not _ActivateEventPrompt2.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                                task.spawn(function()
+                                                    while Value and not _ActivateEventPrompt2:GetAttribute('Interactions') do
+                                                        task.wait(0.1)
+                                                        local char = _LocalPlayer.Character
+                                                        local root = char and char:FindFirstChild("HumanoidRootPart")
+
+                                                        if root and item2 and item2.PrimaryPart then
+                                                            if (root.Position - item2.PrimaryPart.Position).Magnitude <= 12 then
+                                                                fireproximityprompt(_ActivateEventPrompt2)
+                                                            end
+                                                        end
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                    else
+                                        local _LootPrompt = item2:WaitForChild('LootPrompt')
+
+                                        if not _LootPrompt:GetAttribute('Interactions') and not _LootPrompt.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                            task.spawn(function()
+                                                while Value and not _LootPrompt:GetAttribute('Interactions') do
+                                                    task.wait(0.1)
+                                                    if _LocalPlayer.Character and item2.PrimaryPart then
+                                                        local root = _LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                                                        if root then
+                                                            if (root.Position - item2.PrimaryPart.Position).Magnitude <= 12 then
+                                                                fireproximityprompt(_LootPrompt)
+                                                            end
+                                                        end
+                                                    end
+                                                end
+                                            end)
+                                        end
+                                    end
+                                else
+                                    local _ModulePrompt2 = item2:WaitForChild('ModulePrompt')
+
+                                    if not _ModulePrompt2:GetAttribute('Interactions') and not _ModulePrompt2.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                        task.spawn(function()
+                                            while Value and not _ModulePrompt2:GetAttribute('Interactions') do
+                                                task.wait(0.1)
+                                                local part = item2 and (item2.PrimaryPart or item2:FindFirstChildWhichIsA("BasePart"))
+                                                local char = _LocalPlayer.Character
+                                                local root = char and char:FindFirstChild("HumanoidRootPart")
+                                                if part and root then
+                                                    if (root.Position - part.Position).Magnitude <= 12 then
+                                                        fireproximityprompt(_ModulePrompt2)
+                                                    end
+                                                end
+                                            end
+                                        end)
+                                    end
+                                end
+                            else
+                                local u150 = item2
+                                local _ActivateEventPrompt3 = u150:WaitForChild('ActivateEventPrompt')
+
+                                if not _ActivateEventPrompt3:GetAttribute('Interactions') and not _ActivateEventPrompt3.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                    task.spawn(function()
+                                        while Value and not _ActivateEventPrompt3:GetAttribute('Interactions') do
+                                            task.wait(0.1)
+                                            local door = u150 and u150:FindFirstChild("Door")
+                                            door = door and (door:IsA("BasePart") and door or door:FindFirstChildWhichIsA("BasePart"))
+                                            local char = _LocalPlayer.Character
+                                            local root = char and char:FindFirstChild("HumanoidRootPart")
+                                            if door and root then
+                                                if (root.Position - door.Position).Magnitude <= 12 then
+                                                    fireproximityprompt(_ActivateEventPrompt3)
+                                                end
+                                            end
+                                        end
+                                    end)
+                                end
+                            end
+                        else
+                            local _Door3 = item2:WaitForChild('Door')
+                            local _ActivateEventPrompt4 = _Door3:WaitForChild('ActivateEventPrompt')
+
+                            if not _ActivateEventPrompt4:GetAttribute('Interactions') and not _ActivateEventPrompt4.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                                task.spawn(function()
+                                    while Value and not _ActivateEventPrompt4:GetAttribute('Interactions') do
+                                        task.wait(0.1)
+                                        local door = _Door3:IsA("BasePart") and _Door3 or _Door3:FindFirstChildWhichIsA("BasePart")
+                                        local char = _LocalPlayer.Character
+                                        local root = char and char:FindFirstChild("HumanoidRootPart")
+                                        if door and root then
+                                            if (root.Position - door.Position).Magnitude <= 12 then
+                                                fireproximityprompt(_ActivateEventPrompt4)
+                                            end
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    else
+                        local u154 = item2
+                        local _ActivateEventPrompt5 = u154:WaitForChild('ActivateEventPrompt')
+
+                        if not _ActivateEventPrompt5:GetAttribute('Interactions') and not _ActivateEventPrompt5.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                            task.spawn(function()
+                                while Value and not _ActivateEventPrompt5:GetAttribute('Interactions') do
+                                    task.wait(0.1)
+                                    local part = u154:FindFirstChild("Main") or u154:FindFirstChildWhichIsA("BasePart")
+                                    local char = _LocalPlayer.Character
+                                    local root = char and char:FindFirstChild("HumanoidRootPart")
+                                    if part and root then
+                                        if (root.Position - part.Position).Magnitude <= 12 then
+                                            fireproximityprompt(_ActivateEventPrompt5)
+                                        end
+                                    end
+                                end
+                            end)
+                        end
+                    end
+                else
+                    local u156 = item2:FindFirstChild('Knobs') or item2:FindFirstChild('Metal')
+
+                    if u156 then
+                        local _ActivateEventPrompt6 = u156:WaitForChild('ActivateEventPrompt')
+
+                        if not _ActivateEventPrompt6:GetAttribute('Interactions') and not _ActivateEventPrompt6.Parent:GetAttribute("JeffShop") and not (game:GetService("ReplicatedStorage").GameData.LatestRoom.Value == 50) then
+                            task.spawn(function()
+                                while Value and not _ActivateEventPrompt6:GetAttribute('Interactions') do
+                                    task.wait(0.1)
+                                    local part = u156:IsA("BasePart") and u156 or u156:FindFirstChildWhichIsA("BasePart")
+                                    local char = _LocalPlayer.Character
+                                    local root = char and char:FindFirstChild("HumanoidRootPart")
+                                    if part and root then
+                                        if (root.Position - part.Position).Magnitude <= 12 then
+                                            fireproximityprompt(_ActivateEventPrompt6)
+                                        end
+                                    end
+                                end
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+
+        local connection = item1.DescendantAdded:Connect(function(child)
+            check(child)
+        end)
+        
+        for _, child in pairs(item1:GetDescendants()) do
+            check(child)
+        end
+
+        task.spawn(function()
+            repeat task.wait() until not Value
+            Loot = false
+            connection:Disconnect()
+        end)
+    end
+
+    local connection2 = workspace.CurrentRooms.ChildAdded:Connect(function(child)
+        items(child)
+    end)
+
+    for _, child in pairs(workspace.CurrentRooms:GetChildren()) do
+        if child:FindFirstChild('Assets') then
+            items(child)
+        end
+    end
+
+    repeat task.wait() until not Value
+    Loot = false
+    connection2:Disconnect()
+end
+	end,
 })
 
 Exploits:AddSlider("KnobRadius", {
@@ -1141,7 +1397,7 @@ Exploits:AddSlider("InteractRange", {
 	Text = "Interact Range",
 	Default = 25,
 	Min = 16,
-	Max = 50,
+	Max = 30,
 	Rounding = 1,
 	Compact = true
 })
@@ -1149,7 +1405,7 @@ Exploits:AddSlider("InteractRange", {
 task.spawn(function()
     while true do
         for _, prompt in pairs(workspace.CurrentRooms:GetDescendants()) do
-            if prompt:IsA("ProximityPrompt") then
+            if prompt:IsA("ProximityPrompt") and Toggles.InstantInteract and Toggles.InteractNoclip and Toggles.InteractRange then
                 prompt.HoldDuration = Toggles.InstantInteract.Value and 0 or prompt.HoldDuration
                 prompt.RequiresLineOfSight = not Toggles.InteractNoclip.Value or prompt.RequiresLineOfSight
                 prompt.MaxActivationDistance = Options.InteractRange.Value
@@ -1184,7 +1440,7 @@ CustomPhysics = PhysicalProperties.new(
 		end
 	end
 
-Toggles.Noacceleration:OnChanged(function(Value)
+Toggles.NoAcceleration:OnChanged(function(Value)
 	for Index, Old in PartProperties do
 		Index.CustomPhysicalProperties = Value and CustomPhysics or Old
 	end
@@ -1715,6 +1971,9 @@ LocalPlayer.CharacterAdded:Connect(function(newChar)
 	Camera = workspace.CurrentCamera
 	SetupCollisionClone(Character)
 	UpdateRoomAssets()
+	for Index, Old in PartProperties do
+		Index.CustomPhysicalProperties = Toggles.Noacceleration.Value and CustomPhysics or Old
+	end
 end)
 
 SettingsBox:AddLabel("Menu bind"):AddKeyPicker("MenuKeybind", { Default = "RightShift", NoUI = true, Text = "Menu keybind" })
